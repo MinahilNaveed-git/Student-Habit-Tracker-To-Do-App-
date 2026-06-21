@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>StudyFlow — Student Task Tracker</title>
+  <meta name="description" content="StudyFlow helps university students manage assignments, track deadlines, and boost productivity." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Onboarding Overlay -->
+  <div id="onboarding" class="onboarding-overlay active">
+    <div class="onboarding-container">
+      <div class="onboarding-slide active" data-slide="0">
+        <div class="onboard-art">
+          <div class="onboard-glow"></div>
+          <div class="onboard-icon">📚</div>
+        </div>
+        <h1 class="onboard-title">Welcome to<br /><span class="gradient-text">StudyFlow</span></h1>
+        <p class="onboard-desc">Your smart academic companion. Stay on top of every assignment, deadline, and goal.</p>
+      </div>
+      <div class="onboarding-slide" data-slide="1">
+        <div class="onboard-art">
+          <div class="onboard-glow purple"></div>
+          <div class="onboard-icon">✅</div>
+        </div>
+        <h1 class="onboard-title">Track Every<br /><span class="gradient-text purple">Task</span></h1>
+        <p class="onboard-desc">Add assignments with priority, due dates, subjects, and progress tracking — all in one place.</p>
+      </div>
+      <div class="onboarding-slide" data-slide="2">
+        <div class="onboard-art">
+          <div class="onboard-glow green"></div>
+          <div class="onboard-icon">📊</div>
+        </div>
+        <h1 class="onboard-title">Visualize Your<br /><span class="gradient-text green">Progress</span></h1>
+        <p class="onboard-desc">Beautiful dashboards and analytics to keep you motivated and productive every day.</p>
+      </div>
+
+      <div class="onboard-dots">
+        <span class="dot active" data-dot="0"></span>
+        <span class="dot" data-dot="1"></span>
+        <span class="dot" data-dot="2"></span>
+      </div>
+      <button class="btn-primary onboard-next" id="onboardNext">Get Started</button>
+      <button class="btn-ghost onboard-skip" id="onboardSkip">Skip</button>
+    </div>
+  </div>
+
+  <!-- Auth Screen Overlay -->
+  <div id="authScreen" class="auth-overlay hidden">
+    <div class="auth-container glass-card">
+      <div class="auth-header-logo">
+        <span class="auth-logo-icon">🔒</span>
+        <h2 class="auth-logo-title">Study<span class="gradient-text">Flow</span></h2>
+      </div>
+      
+      <!-- Tab selectors -->
+      <div class="auth-tabs">
+        <div class="auth-tab-slider" id="authTabSlider"></div>
+        <button class="auth-tab-btn active" id="tabLoginBtn" type="button">Sign In</button>
+        <button class="auth-tab-btn" id="tabRegisterBtn" type="button">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="student@university.edu" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary auth-submit-btn" id="loginSubmitBtn">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="registerName" class="form-input" placeholder="Alex Morgan" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" id="registerEmail" class="form-input" placeholder="student@university.edu" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Major/Field *</label>
+            <input type="text" id="registerMajor" class="form-input" placeholder="Computer Science" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Year of Study *</label>
+            <select id="registerYear" class="form-input" required>
+              <option value="" disabled selected>Select Year</option>
+              <option value="Freshman">Freshman</option>
+              <option value="Sophomore">Sophomore</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+              <option value="Graduate">Graduate</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input type="password" id="registerPassword" class="form-input" placeholder="Min. 6 characters" required minlength="6" />
+        </div>
+        <button type="submit" class="btn-primary auth-submit-btn" id="registerSubmitBtn">Create Account</button>
+      </form>
+
+      <div class="auth-error-msg hidden" id="authErrorMsg">Invalid credentials. Please try again.</div>
+
+      <div class="auth-divider">
+        <span class="auth-divider-line"></span>
+        <span class="auth-divider-text">or</span>
+        <span class="auth-divider-line"></span>
+      </div>
+      <button type="button" class="btn-ghost auth-guest-btn" id="continueAsGuestBtn">Continue as Guest</button>
+    </div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="app" class="app-shell hidden">
+
+    <!-- Top Header -->
+    <header class="app-header" id="appHeader">
+      <div class="header-left">
+        <div class="avatar" id="userAvatar">SF</div>
+        <div class="header-title-group">
+          <span class="header-greeting" id="greeting">Good morning</span>
+          <span class="header-name" id="userName">Student</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="moon-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn" id="notifBtn" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge hidden" id="notifBadge">3</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContent">
+
+      <!-- HOME / DASHBOARD TAB -->
+      <section class="tab-screen active" id="screen-home">
+        <div class="screen-scroll">
+
+          <!-- Quote Card -->
+          <div class="quote-card glass-card" id="quoteCard">
+            <span class="quote-icon">💡</span>
+            <p class="quote-text" id="dailyQuote">Loading inspiration...</p>
+            <button class="quote-refresh" id="refreshQuote">↻</button>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-card glass-card blue" id="statTotal">
+              <span class="stat-num" id="totalTasks">0</span>
+              <span class="stat-label">Total Tasks</span>
+            </div>
+            <div class="stat-card glass-card green" id="statDone">
+              <span class="stat-num" id="doneTasks">0</span>
+              <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-card glass-card red" id="statOverdue">
+              <span class="stat-num" id="overdueTasks">0</span>
+              <span class="stat-label">Overdue</span>
+            </div>
+            <div class="stat-card glass-card purple" id="statToday">
+              <span class="stat-num" id="todayTasks">0</span>
+              <span class="stat-label">Due Today</span>
+            </div>
+          </div>
+
+          <!-- Productivity Ring -->
+          <div class="productivity-section glass-card">
+            <h3 class="section-title">Productivity Score</h3>
+            <div class="ring-container">
+              <canvas id="productivityRing" width="160" height="160"></canvas>
+              <div class="ring-center">
+                <span class="ring-pct" id="productivityPct">0%</span>
+                <span class="ring-sub">Complete</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Chart -->
+          <div class="chart-section glass-card">
+            <h3 class="section-title">Weekly Activity</h3>
+            <div class="chart-wrap">
+              <canvas id="weeklyChart" height="140"></canvas>
+            </div>
+          </div>
+
+          <!-- Subject Breakdown -->
+          <div class="subject-breakdown glass-card">
+            <h3 class="section-title">Subject Workload</h3>
+            <div class="chart-wrap pie-wrap">
+              <canvas id="subjectPie" height="180"></canvas>
+            </div>
+            <div id="subjectLegend" class="subject-legend"></div>
+          </div>
+
+          <!-- Today's Tasks -->
+          <div class="today-tasks-section">
+            <div class="section-header">
+              <h3 class="section-title">Due Today</h3>
+              <button class="btn-text" onclick="switchTab('tasks')">See all →</button>
+            </div>
+            <div id="todayTasksList" class="task-mini-list"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TASKS TAB -->
+      <section class="tab-screen" id="screen-tasks">
+        <div class="screen-scroll">
+
+          <!-- Search & Filter -->
+          <div class="search-bar glass-card">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search assignments..." class="search-input" />
+            <button class="filter-btn" id="filterToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="quick-filters" id="quickFilters">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip" data-filter="today">Today</button>
+            <button class="filter-chip" data-filter="week">This Week</button>
+            <button class="filter-chip" data-filter="overdue">Overdue</button>
+            <button class="filter-chip" data-filter="high">🔴 High</button>
+            <button class="filter-chip" data-filter="medium">🟠 Medium</button>
+            <button class="filter-chip" data-filter="low">🟢 Low</button>
+            <button class="filter-chip" data-filter="completed">✅ Done</button>
+            <button class="filter-chip" data-filter="inprogress">⏳ In Progress</button>
+          </div>
+
+          <!-- Sort -->
+          <div class="sort-row">
+            <span class="sort-label">Sort by:</span>
+            <select class="sort-select" id="sortSelect">
+              <option value="dueDate">Due Date</option>
+              <option value="priority">Priority</option>
+              <option value="subject">Subject</option>
+              <option value="created">Date Added</option>
+            </select>
+          </div>
+
+          <!-- Task List -->
+          <div id="taskList" class="task-list"></div>
+          <div id="emptyTasks" class="empty-state hidden">
+            <div class="empty-icon">📭</div>
+            <p class="empty-title">No tasks found</p>
+            <p class="empty-sub">Add your first assignment to get started!</p>
+          </div>
+
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" id="addTaskBtn" title="Add Task">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </section>
+
+      <!-- SUBJECTS TAB -->
+      <section class="tab-screen" id="screen-subjects">
+        <div class="screen-scroll">
+          <div class="section-header">
+            <h2 class="page-title">Subjects</h2>
+            <button class="btn-primary small" id="addSubjectBtn">+ Add</button>
+          </div>
+          <div id="subjectList" class="subject-list"></div>
+          <div id="emptySubjects" class="empty-state hidden">
+            <div class="empty-icon">📖</div>
+            <p class="empty-title">No subjects yet</p>
+            <p class="empty-sub">Add your courses to organize your tasks.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ANALYTICS TAB -->
+      <section class="tab-screen" id="screen-analytics">
+        <div class="screen-scroll">
+          <h2 class="page-title">Analytics</h2>
+
+          <div class="analytics-card glass-card">
+            <h3 class="section-title">Completion Rate</h3>
+            <div class="big-ring-container">
+              <canvas id="bigRing" width="200" height="200"></canvas>
+              <div class="ring-center big">
+                <span class="ring-pct big" id="bigRingPct">0%</span>
+                <span class="ring-sub">Tasks Done</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-card glass-card">
+            <h3 class="section-title">Priority Distribution</h3>
+            <div class="chart-wrap">
+              <canvas id="priorityChart" height="160"></canvas>
+            </div>
+          </div>
+
+          <div class="analytics-card glass-card">
+            <h3 class="section-title">Status Overview</h3>
+            <div id="statusBars" class="status-bars"></div>
+          </div>
+
+          <div class="analytics-card glass-card">
+            <h3 class="section-title">Monthly Activity</h3>
+            <div class="chart-wrap">
+              <canvas id="monthlyChart" height="160"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-item active" data-tab="home" id="nav-home">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span class="nav-label">Home</span>
+        <div class="nav-indicator"></div>
+      </button>
+      <button class="nav-item" data-tab="tasks" id="nav-tasks">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <span class="nav-label">Tasks</span>
+        <div class="nav-indicator"></div>
+      </button>
+      <button class="nav-item" data-tab="subjects" id="nav-subjects">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <span class="nav-label">Subjects</span>
+        <div class="nav-indicator"></div>
+      </button>
+      <button class="nav-item" data-tab="analytics" id="nav-analytics">
+        <div class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <span class="nav-label">Analytics</span>
+        <div class="nav-indicator"></div>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Add/Edit Task Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal glass-card" id="taskModalContent">
+      <div class="modal-header">
+        <h2 class="modal-title" id="taskModalTitle">New Assignment</h2>
+        <button class="modal-close" id="closeTaskModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input type="text" id="taskTitle" class="form-input" placeholder="e.g. Research Paper Draft" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select id="taskSubject" class="form-input">
+              <option value="">Select subject</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="taskPriority" class="form-input">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟠 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Due Date *</label>
+            <input type="date" id="taskDueDate" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Est. Time (hrs)</label>
+            <input type="number" id="taskEstTime" class="form-input" placeholder="2" min="0.5" step="0.5" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <div class="status-picker" id="statusPicker">
+            <button class="status-opt active" data-status="not-started">Not Started</button>
+            <button class="status-opt" data-status="in-progress">In Progress</button>
+            <button class="status-opt" data-status="completed">Completed</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="taskDesc" class="form-input textarea" placeholder="Add description or requirements..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea id="taskNotes" class="form-input textarea short" placeholder="Optional notes..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelTaskModal">Cancel</button>
+        <button class="btn-primary" id="saveTaskBtn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div class="modal-overlay" id="subjectModal">
+    <div class="modal glass-card small-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Subject</h2>
+        <button class="modal-close" id="closeSubjectModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Subject Name *</label>
+          <input type="text" id="subjectName" class="form-input" placeholder="e.g. Computer Science" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-picker" id="colorPicker">
+            <span class="color-dot active" data-color="#6366f1" style="background:#6366f1"></span>
+            <span class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6"></span>
+            <span class="color-dot" data-color="#ec4899" style="background:#ec4899"></span>
+            <span class="color-dot" data-color="#f59e0b" style="background:#f59e0b"></span>
+            <span class="color-dot" data-color="#10b981" style="background:#10b981"></span>
+            <span class="color-dot" data-color="#3b82f6" style="background:#3b82f6"></span>
+            <span class="color-dot" data-color="#ef4444" style="background:#ef4444"></span>
+            <span class="color-dot" data-color="#06b6d4" style="background:#06b6d4"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icon</label>
+          <div class="icon-picker" id="iconPicker">
+            <span class="icon-opt active" data-icon="📚">📚</span>
+            <span class="icon-opt" data-icon="🧮">🧮</span>
+            <span class="icon-opt" data-icon="🔬">🔬</span>
+            <span class="icon-opt" data-icon="🎨">🎨</span>
+            <span class="icon-opt" data-icon="💻">💻</span>
+            <span class="icon-opt" data-icon="📝">📝</span>
+            <span class="icon-opt" data-icon="🌍">🌍</span>
+            <span class="icon-opt" data-icon="🎵">🎵</span>
+            <span class="icon-opt" data-icon="⚗️">⚗️</span>
+            <span class="icon-opt" data-icon="📐">📐</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelSubjectModal">Cancel</button>
+        <button class="btn-primary" id="saveSubjectBtn">Add Subject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Detail Modal -->
+  <div class="modal-overlay" id="taskDetailModal">
+    <div class="modal glass-card" id="taskDetailContent">
+      <div class="modal-header">
+        <div class="detail-priority-badge" id="detailPriorityBadge"></div>
+        <button class="modal-close" id="closeDetailModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <div class="detail-meta">
+          <span class="detail-chip subject" id="detailSubject"></span>
+          <span class="detail-chip status" id="detailStatus"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">📅</span>
+          <span id="detailDue"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">⏱️</span>
+          <span id="detailTime"></span>
+        </div>
+        <div class="detail-desc" id="detailDesc"></div>
+        <div class="detail-notes" id="detailNotesWrap">
+          <strong>Notes:</strong>
+          <p id="detailNotes"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-danger" id="deleteTaskBtn">Delete</button>
+        <button class="btn-ghost" id="editTaskBtn">Edit</button>
+        <button class="btn-primary" id="completeTaskBtn">Mark Complete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal glass-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Student Profile</h2>
+        <button class="modal-close" id="closeProfileModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Guest Profile Banner -->
+        <div class="guest-profile-banner hidden" id="guestProfileBanner">
+          <div class="guest-banner-icon">💡</div>
+          <div class="guest-banner-text">
+            You are using guest mode. Your data is stored locally. 
+            <a href="#" id="guestToAuthLink" class="brand-link">Sign In / Sign Up</a> to sync to the cloud.
+          </div>
+        </div>
+
+        <div class="profile-avatar-large" id="profileAvatarLarge">SF</div>
+        <div class="profile-details-display">
+          <h3 id="profileNameDisplay">Alex Morgan</h3>
+          <p id="profileEmailDisplay">alex.morgan@univ.edu</p>
+        </div>
+        <div class="profile-divider"></div>
+        <form id="profileForm">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="profileName" class="form-input" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Major/Field</label>
+              <input type="text" id="profileMajor" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Year of Study</label>
+              <select id="profileYear" class="form-input" required>
+                <option value="Freshman">Freshman</option>
+                <option value="Sophomore">Sophomore</option>
+                <option value="Junior">Junior</option>
+                <option value="Senior">Senior</option>
+                <option value="Graduate">Graduate</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password (leave blank to keep current)</label>
+            <input type="password" id="profilePassword" class="form-input" placeholder="••••••••" minlength="6" />
+          </div>
+          <div class="auth-error-msg hidden" id="profileErrorMsg">Failed to update profile.</div>
+        </form>
+      </div>
+      <div class="modal-footer profile-modal-footer">
+        <button class="btn-danger" id="logoutBtn">Log Out</button>
+        <div style="flex: 1"></div>
+        <button class="btn-ghost" id="cancelProfileBtn">Cancel</button>
+        <button class="btn-primary" id="saveProfileBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/subjects.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
